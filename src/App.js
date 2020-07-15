@@ -31,9 +31,7 @@ function App() {
     const animation = getAnimation();
     animation.updatePlaybackRate(animation.playbackRate * 2);
   };
-  const finish = () => {
-    getAnimation().finish();
-  };
+ 
   return (
     <div className="wrapper">
   <div className="sky"></div>
