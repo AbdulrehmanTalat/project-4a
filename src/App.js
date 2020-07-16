@@ -1,69 +1,104 @@
-import React from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 import './App.css';
-import cx from 'classnames';
-import useWebAnimations from "@wellyshen/use-web-animations";
 function App() {
- 
-  const { ref, getAnimation } = useWebAnimations({
-    playbackRate: 2, // Change playback rate, default is 1
-    autoPlay: false, // Automatically starts the animation, default is true
-    keyframes: [
-      {
-        transform: "translateX(100%)",
-      },
-      {
-        transform: "translateX(-100%)",
+
+  const aliceSprite = useRef(null);
+  const foreground = useRef(null);
+  const background = useRef(null);
+
+  useLayoutEffect(() => {
+    // Alice
+      var spriteFrames = [
+        { transform: 'translateY(0)' },
+        { transform: 'translateY(-100%)' }   
+      ];
+
+      var alice = aliceSprite.current.animate(
+        spriteFrames, {
+          easing: 'steps(7, end)',
+          direction: "reverse",
+          duration: 500,
+          playbackRate: 1,
+          iterations: Infinity
+        });
+
+      setInterval( function() {
+        if (alice.playbackRate > .4) {
+          alice.playbackRate -= .1;
+          adjustSceneryPlayback();
+        } 
+      }, 3000);
+
+    // Scenery
+      var sceneryFrames =   [
+        { transform: 'translateX(100%)' },
+        { transform: 'translateX(-100%)' }   
+      ];
+      
+      var sceneryTimingBackground = {
+        duration: 36000,
+        iterations: Infinity
+      };
+      
+      var sceneryTimingForeground = {
+        duration: 12000,
+        iterations: Infinity
+      };
+
+      var foregroundMovement = foreground.current.animate(sceneryFrames, sceneryTimingForeground);
+      var backgroundMovement = background.current.animate(sceneryFrames, sceneryTimingBackground);
+
+      var sceneries = [foregroundMovement, backgroundMovement];
+
+      var adjustSceneryPlayback = function() {
+        console.log(alice.playbackRate)
+        if (alice.playbackRate < .8) {
+          sceneries.forEach(function(anim) {
+            anim.playbackRate = alice.playbackRate/2 * -1;
+          });
+        } else if (alice.playbackRate > 1.2) {
+          sceneries.forEach(function(anim) {
+            anim.playbackRate = alice.playbackRate/2;
+          });
+        } else {
+          sceneries.forEach(function(anim) {
+            anim.playbackRate = 0;    
+          });
+        }   
       }
-    ],
-    timing: {
-      duration: 100000,
-      iterations: Infinity,
-    },
-    onUpdate: ({ playState, animate, animation }) => {
-      console.log("playstate", playState);
-      console.log("animate", animate);
-      console.log("animation", animation);
-    },
+      adjustSceneryPlayback();
 
+      const goFaster = () => {
+        alice.playbackRate += 0.1;
+        adjustSceneryPlayback();
+      }
+  
+      window.addEventListener("click", goFaster);
+  })
 
-  });
-  const speedUp = () => {
-    const animation = getAnimation();
-    animation.updatePlaybackRate(animation.playbackRate * 2);
-  };
- 
+  
+  
   return (
-    <div className="wrapper">
-  <div className="sky"></div>
-  <div className="earth">
-    <div className="red-queen_and_alice" onClick={speedUp} >
-      <img ref={ref} className="red-queen_and_alice_sprite" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/sprite_running-alice-queen_small.png" srcSet="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/sprite_running-alice-queen.png 2x" alt="Alice and the Red Queen running to stay in place." />
+    <div className="container">
+      <div className="sky"></div>
+      
+      <div className="earth">
+        <div className="alice">
+            <img className="alicesprite" ref={aliceSprite} src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/sprite_running-alice-queen_small.png" alt=" " />
+        </div>
+      </div>
+      
+      <div className="scenery" id="foreground" ref={foreground}>
+        <img id="treefore" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/palm3_small.png" alt=" "/>
+        <img id="wrookupright" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/w_rook_upright_small.png" />
+      </div>
+
+      <div className="scenery background1" ref={background}>
+        <img className="pawn" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/r_pawn_upright_small.png" alt=" " />
+        <img className="pawn2" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/w_rook_small.png" alt=" " />
+        <img className="treeback" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/palm1_small.png" alt=" " />
+      </div>
     </div>
-  </div>
-
-  <div className={cx("scenery","foreground1")} ref={ref}>
-    <img onClick={()=> {
-      getAnimation().play();
-    }} className="palm3" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/palm3_small.png" srcSet="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/palm3.png 2x" alt=" " />
-  </div>
-  <div className={cx("scenery","foreground2")} ref={ref}>    
-    <img className="bush" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/bush_small.png" srcSet="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/bush.png 2x" alt=" " />
-    <img className="w_rook_upright" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/w_rook_upright_small.png" srcSet="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/w_rook_upright.png 2x" alt=" " />
-  </div>
-  <div className={cx("scenery","background1")} ref={ref}>
-    <img className="r_pawn_upright" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/r_pawn_upright_small.png" srcSet="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/r_pawn_upright.png 2x" alt=" " onClick={() => {
-      getAnimation().pause();
-    }} />
-    <img className="w_rook" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/w_rook_small.png" srcSet="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/w_rook.png 2x" alt=" " />
-    <img className="palm1" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/palm1_small.png" srcSet="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/palm1.png 2x" alt=" " />
-  </div>
-  <div className={cx("scenery","background2")}  ref={ref}>
-    <img className="r_pawn" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/r_pawn_small.png" srcSet="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/r_pawn.png 2x" alt=" " />
-
-    <img className="r_knight" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/r_knight_small.png" srcSet="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/r_knight.png 2x" alt=" " />
-    <img className="palm2" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/palm2_small.png" srcSet="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/palm2.png 2x" alt=" " />
-  </div>
-</div>
   );
 }
 
