@@ -90,7 +90,7 @@ function App() {
       
       <div className="scenery" id="foreground" ref={foreground}>
         <img id="treefore" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/palm3_small.png" alt=" "/>
-        <img id="wrookupright" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/w_rook_upright_small.png" />
+        <img id="wrookupright" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/w_rook_upright_small.png" alt=" " />
       </div>
 
       <div className="scenery background1" ref={background}>
